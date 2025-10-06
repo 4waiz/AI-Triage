@@ -1,0 +1,168 @@
+{
+  "version": "2025-10-06",
+  "source": "RightCare Ground Truth v1",
+  "esi": {
+    "levels": [
+      {
+        "id": "ESI-1",
+        "name": "Immediate",
+        "criteria": [
+          "Need immediate life-saving intervention",
+          "Airway compromise, apnea, pulseless",
+          "Unresponsive or seizure with airway risk"
+        ],
+        "route": "ED",
+        "urgency": "High"
+      },
+      {
+        "id": "ESI-2",
+        "name": "Emergent / High risk",
+        "criteria": [
+          "High-risk situation or severe pain/distress (>=7/10)",
+          "Acute confusion / lethargy / disorientation",
+          "Infant < 3 months with fever"
+        ],
+        "route": "ED",
+        "urgency": "High"
+      },
+      {
+        "id": "ESI-3",
+        "name": "Urgent; multiple resources; stable",
+        "criteria": [
+          "Multiple resources expected (e.g., labs + imaging + IV meds)",
+          "Vitals stable"
+        ],
+        "route": "ED",
+        "urgency": "Medium"
+      },
+      {
+        "id": "ESI-4",
+        "name": "One resource; stable",
+        "criteria": [
+          "Exactly one resource expected (e.g., single X-ray OR suturing)",
+          "Vitals stable"
+        ],
+        "route": "Outpatient",
+        "urgency": "Low"
+      },
+      {
+        "id": "ESI-5",
+        "name": "No resources",
+        "criteria": [
+          "No resources beyond exam and advice"
+        ],
+        "route": "Outpatient",
+        "urgency": "Low"
+      }
+    ]
+  },
+  "red_flags": [
+    "severe chest pain", "crushing chest pain", "STEMI",
+    "shortness of breath at rest", "can’t breathe", "cyanosis",
+    "unresponsive", "seizure", "focal weakness", "stroke", "FAST positive",
+    "sudden worst headache", "neck stiffness + fever",
+    "GI bleed (hematemesis, melena) with instability",
+    "anaphylaxis", "facial/lip/tongue swelling", "stridor",
+    "major trauma", "massive burn", "pregnancy with heavy bleeding"
+  ],
+  "symptom_to_esi": {
+    "breathing difficulty severe": "ESI-1",
+    "unresponsive": "ESI-1",
+    "crushing chest pain": "ESI-2",
+    "sudden severe headache with confusion": "ESI-2",
+    "severe allergic reaction": "ESI-2",
+    "sob with mild cough": "ESI-3",
+    "moderate abdominal pain not vomiting": "ESI-3",
+    "simple stable fracture": "ESI-3",
+    "fever infant under 3 months": "ESI-2",
+    "laceration suturable not heavy bleeding": "ESI-4",
+    "sprained ankle ambulatory": "ESI-4",
+    "mild earache afebrile": "ESI-5",
+    "uri no distress": "ESI-5",
+    "small cut non infected": "ESI-5",
+    "prescription refill": "ESI-5",
+    "chronic unchanged headache": "ESI-5",
+    "vomiting alert hydrated": "ESI-4"
+  },
+  "protocols": [
+    {
+      "id": "PROTO-BURNS",
+      "title": "Burns Emergency Triage Protocol",
+      "triggers": ["burn", "scald", "electrical burn", "chemical burn"],
+      "esi_default": "ESI-2",
+      "override_rules": [
+        "Major burns (>10% TBSA), facial burns, inhalational injury => ESI-1",
+        "Small superficial burn without airway risk => ESI-4/5"
+      ]
+    },
+    {
+      "id": "PROTO-STEMI",
+      "title": "ST-Elevation Myocardial Infarction",
+      "triggers": ["chest pain", "pressure", "radiation to arm/jaw", "diaphoresis"],
+      "esi_default": "ESI-2",
+      "override_rules": ["Hemodynamic instability or arrest => ESI-1"]
+    },
+    {
+      "id": "PROTO-PEDS",
+      "title": "Pediatric Emergency Triage",
+      "triggers": ["infant", "child", "fever <3 months"],
+      "esi_default": "ESI-2",
+      "override_rules": ["Toxic-appearing or apnea => ESI-1"]
+    },
+    {
+      "id": "PROTO-STROKE",
+      "title": "Hyperacute Stroke Triage",
+      "triggers": ["sudden weakness", "speech difficulty", "facial droop", "FAST positive"],
+      "esi_default": "ESI-2",
+      "override_rules": ["Airway compromise or unresponsive => ESI-1"]
+    },
+    {
+      "id": "PROTO-MCI",
+      "title": "Mass Casualty – Interagency Integrated Triage Tool (MC-IITT)",
+      "triggers": ["mass casualty", "multiple victims", "disaster"],
+      "esi_default": "ESI-2"
+    },
+    {
+      "id": "PROTO-MERS",
+      "title": "MERS-CoV screening and triage",
+      "triggers": ["MERS", "camel exposure", "fever cough middle east travel"],
+      "esi_default": "ESI-3",
+      "override_rules": ["Respiratory distress => ESI-1/2"]
+    },
+    {
+      "id": "PROTO-COVID",
+      "title": "COVID-19 Clinical Assessment Protocols",
+      "triggers": ["covid", "loss of taste", "fever cough contact"],
+      "esi_default": "ESI-3",
+      "override_rules": ["Severe hypoxia or RR>30 => ESI-2/1"]
+    },
+    {
+      "id": "PROTO-MENTAL",
+      "title": "Mental Health Screening",
+      "subprotocols": ["PHQ-2/9", "GAD-2/7", "SCOFF"],
+      "triggers": ["depression", "anxiety", "eating disorder"],
+      "esi_default": "ESI-4/5",
+      "override_rules": ["Active suicidality or self-harm intent => ESI-1/2 (ED)"]
+    }
+  ],
+  "ccad": {
+    "symptom_to_outpatient_facility": [
+      {
+        "symptom_key": "mild earache afebrile",
+        "facility_name": "CCAD — Family Medicine (OUTPATIENT)",
+        "booking_url": "CCAD_FACILITY_URL_PLACEHOLDER"
+      },
+      {
+        "symptom_key": "sprained ankle ambulatory",
+        "facility_name": "CCAD — Orthopedics (OUTPATIENT)",
+        "booking_url": "CCAD_FACILITY_URL_PLACEHOLDER"
+      },
+      {
+        "symptom_key": "chronic unchanged headache",
+        "facility_name": "CCAD — Neurology (OUTPATIENT)",
+        "booking_url": "CCAD_FACILITY_URL_PLACEHOLDER"
+      }
+    ],
+    "notes": "Replace placeholders with real CCAD data list when provided."
+  }
+}
