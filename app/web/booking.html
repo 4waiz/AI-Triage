@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RightCare — Appointment Booking</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0e1626; --text:#fefce8;
+      --accent:#fde047; --accent2:#facc15;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; height:100vh;
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(250,204,21,.1), transparent 60%),
+        radial-gradient(1000px 700px at 110% 10%, rgba(253,224,71,.08), transparent 55%),
+        var(--bg);
+      color:var(--text); font:16px/1.5 Inter,system-ui,Segoe UI,Roboto,Arial;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .card{
+      background:var(--panel);
+      padding:24px 30px;
+      border-radius:18px;
+      box-shadow:0 0 20px rgba(250,204,21,.15);
+      width:360px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,.15);
+    }
+    h1{
+      font-size:28px;
+      background:linear-gradient(90deg,#fffde7,#fef08a 40%,#fde047 70%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:10px;
+    }
+    p{color:#e7e7c5;margin:6px 0 16px}
+    input,select,button{
+      width:100%;
+      padding:12px;
+      margin:8px 0;
+      border-radius:12px;
+      border:1px solid rgba(250,204,21,.4);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+      transition:border .2s, box-shadow .2s;
+    }
+    input:focus,select:focus{
+      border-color:#facc15; box-shadow:0 0 0 3px rgba(250,204,21,.25);
+    }
+    button{
+      background:linear-gradient(90deg,#facc15,#fde047);
+      color:#222; font-weight:700; border:none; cursor:pointer;
+      box-shadow:0 0 10px rgba(250,204,21,.3);
+    }
+    button:hover{filter:brightness(1.05)}
+    .back{
+      display:inline-block;margin-top:18px;
+      color:#fef08a;text-decoration:underline;cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Book an Appointment</h1>
+    <p>Please select a specialty and preferred date/time.</p>
+
+    <form onsubmit="handleSubmit(event)">
+      <select required>
+        <option value="">Select Specialty</option>
+        <option>Emergency Medicine</option>
+        <option>Cardiology</option>
+        <option>Orthopedics</option>
+        <option>General Practice</option>
+      </select>
+
+      <input type="date" required>
+      <input type="time" required>
+
+      <input type="text" placeholder="Full Name" required>
+      <input type="email" placeholder="Email Address" required>
+
+      <button type="submit">Confirm Booking</button>
+    </form>
+
+    <div class="back" onclick="goBack()">← Back to Assistant</div>
+  </div>
+
+  <script>
+    function handleSubmit(e){
+      e.preventDefault();
+      alert("✅ Appointment request submitted successfully! A confirmation email will be sent shortly.");
+    }
+    function goBack(){
+      window.location.href = "/";
+    }
+  </script>
+</body>
+</html>

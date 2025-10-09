@@ -4,139 +4,256 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RightCare — Medical Triage Assistant</title>
+
+  <link rel="icon" type="image/png" href="/static/logo.png">
+
   <style>
-    :root {
-      --bg: #0b1220; --card:#101827; --muted:#778; --accent:#3b82f6; --text:#e6e7eb;
-      --ring:#3b82f6aa; --bubble:#17223a; --bubble-user:#1f2c4a; --danger:#ef4444;
+    :root{
+      --bg:#0b1220; --panel:#0e1626; --card:#0f1a2c; --ring:#facc15aa;
+      --text:#fefce8; --muted:#d1d5db;
+      --accent:#fde047; --accent2:#facc15;
+      --bubble:#1a2235; --bubble-user:#2a3350;
+      --ok:#16a34a; --warn:#ef4444;
+      --radius:18px;
     }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    .wrap{max-width:900px;margin:40px auto;padding:0 20px}
-    .title{font-weight:800;font-size:34px;letter-spacing:.4px;text-align:center;margin-bottom:22px}
-    .card{background:var(--card);border:1px solid #1f2a44;border-radius:18px;padding:18px 18px 14px}
-    .chat{max-height:58vh;overflow:auto;padding:8px 4px}
-    .bubble{background:var(--bubble);padding:12px 14px;border-radius:14px;margin:8px 0;line-height:1.45}
-    .bubble.user{background:var(--bubble-user);margin-left:auto}
-    .row{display:flex;gap:10px;align-items:center;margin-top:12px}
-    input,select,button{border-radius:12px;border:1px solid #2a3558;background:#0e1626;color:var(--text);padding:12px 14px;outline:none}
-    input:focus,select:focus{border-color:var(--ring);box-shadow:0 0 0 3px var(--ring)}
-    button{background:var(--accent);border:none;padding:12px 18px;font-weight:600;cursor:pointer;border-radius:14px}
-    button:disabled{opacity:.6;cursor:not-allowed}
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; overflow:hidden;
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(234,179,8,.1), transparent 60%),
+        radial-gradient(1000px 700px at 110% 10%, rgba(250,204,21,.08), transparent 55%),
+        var(--bg);
+      color:var(--text); font:16px/1.45 Inter,system-ui,Segoe UI,Roboto,Arial;
+    }
+
+    .app{
+      height:100dvh; max-width:1000px; margin:0 auto; padding:18px;
+      display:flex; flex-direction:column; gap:8px;
+    }
+
+    .header{
+      display:flex; align-items:center; justify-content:center;
+      gap:14px; margin-top:4px; margin-bottom:4px;
+    }
+    .header img{width:70px; height:auto; filter:drop-shadow(0 0 8px rgba(250,204,21,.4));}
+    .title{
+      font-weight:900; letter-spacing:.4px; font-size:30px; margin:0;
+      background:linear-gradient(90deg,#fffde7,#fef08a 40%,#fde047 70%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .sub{color:var(--muted); text-align:center; margin-top:-2px; font-size:.95rem}
+
+    .card{
+      flex:1;
+      display:grid;
+      grid-template-rows:auto 1fr auto auto;
+      gap:10px;
+      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)),var(--card);
+      border:1px solid rgba(255,255,255,.15); border-radius:var(--radius);
+      padding:14px; backdrop-filter:blur(8px);
+    }
+
+    .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+    .badges{display:flex; gap:8px; flex-wrap:wrap}
+    .tag{font-size:12px; color:#fef9c3; padding:6px 10px; border:1px solid rgba(255,255,255,.25); border-radius:999px; background:var(--panel)}
+    .right{display:flex; align-items:center; gap:8px}
+
+    select,button,input{
+      border-radius:14px; border:1px solid rgba(250,204,21,.5);
+      background:rgba(255,255,255,0.05); color:var(--text);
+      padding:12px 14px; outline:none;
+      transition:border-color .15s, box-shadow .15s, transform .02s, background .15s;
+    }
+
+    input{
+      background:rgba(255,255,255,0.08);
+      color:#fffde7;
+    }
+
+    input:focus{
+      border-color:#facc15; box-shadow:0 0 0 3px rgba(250,204,21,.3);
+      background:rgba(255,255,255,0.12);
+    }
+
+    select:focus,button:focus{
+      border-color:#facc15; box-shadow:0 0 0 3px rgba(250,204,21,.3);
+    }
+
+    button{
+      background:linear-gradient(90deg,#facc15,#fde047);
+      border:none; font-weight:700; cursor:pointer; color:#222;
+      box-shadow:0 0 8px rgba(250,204,21,.4);
+    }
+    button:active{transform:translateY(1px)} button:disabled{opacity:.6; cursor:not-allowed}
+
+    .chat{
+      min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      padding:6px 2px; border-radius:12px;
+      max-height:calc(100dvh - 290px);
+      -webkit-overflow-scrolling:touch;
+    }
+    .chat::-webkit-scrollbar{width:10px}
+    .chat::-webkit-scrollbar-thumb{background:#665c25;border-radius:10px}
+    .chat::-webkit-scrollbar-track{background:transparent}
+
+    .bubble{background:var(--bubble); padding:12px 14px; border-radius:14px; margin:10px 0; max-width:88%}
+    .bubble.user{background:var(--bubble-user); margin-left:auto}
+    .row{display:flex; gap:12px; align-items:center}
     .input{flex:1}
-    .hint{color:var(--muted);font-size:.9rem;margin-top:10px;display:flex;gap:8px;align-items:center}
-    .tag{font-size:.75rem;background:#0e1626;border:1px solid #2a3558;padding:6px 10px;border-radius:999px}
-    .toolbar{display:flex;gap:8px;align-items:center}
-    .kpi{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0}
+    .hint{color:#fef9c3; font-size:.9rem}
+
+    .typing span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:999px;background:#fef08a;opacity:.4;
+                 animation:blink 1.2s infinite}
+    .typing span:nth-child(2){animation-delay:.2s} .typing span:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+
+    @media (max-width:640px){
+      .header{flex-direction:column; gap:6px}
+      .header img{width:60px}
+      .title{font-size:24px;text-align:center}
+      .app{padding:12px}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="title">RightCare — Medical Triage Assistant</div>
-    <div class="card">
-      <div id="chat" class="chat"></div>
-      <div class="row">
-        <input id="text" class="input" placeholder="Describe your symptoms here..." />
-        <div class="toolbar">
+  <main class="app">
+    <div class="header">
+      <img src="/static/logo.png" alt="RightCare Logo">
+      <h1 class="title">RightCare — Medical Triage Assistant</h1>
+    </div>
+    <div class="sub">Demo only. Not a substitute for emergency care.</div>
+
+    <section class="card">
+      <div class="topbar">
+        <div class="badges">
+          <span class="tag">Demo</span>
+          <span class="tag">Arabic + English</span>
+        </div>
+        <div class="right">
+          <span class="tag" style="background:transparent;border-color:rgba(255,255,255,.35)">Language</span>
           <select id="lang">
-            <option value="en" selected>English</option>
-            <option value="ar">Arabic</option>
+            <option value="en" selected>English (LTR)</option>
+            <option value="ar">العربية (RTL)</option>
           </select>
-          <button id="sendBtn" onclick="send()">Send</button>
         </div>
       </div>
-      <div class="kpi">
-        <span class="tag">Demo only</span>
-        <span class="tag">Does not replace emergency care</span>
+
+      <div id="chat" class="chat"></div>
+
+      <div class="row">
+        <div class="input">
+          <input id="text" placeholder="Describe your symptoms…" autocomplete="off" />
+        </div>
+        <button id="sendBtn" onclick="send()">Send</button>
       </div>
-      <div class="hint">Tip: Try "severe chest pain radiating to left arm" or "sprained ankle, can walk".</div>
-    </div>
-  </div>
+
+      <div class="hint">Tip: Try “severe chest pain radiating to left arm” or “sprained ankle, can walk”.</div>
+    </section>
+  </main>
 
   <script>
     const chat = document.getElementById('chat');
-    const textEl = document.getElementById('text');
-    const langEl = document.getElementById('lang');
-    const btn = document.getElementById('sendBtn');
+    const text = document.getElementById('text');
+    const lang = document.getElementById('lang');
+    const btn  = document.getElementById('sendBtn');
 
-    function add(role, text){
+    function setDir(){
+      const isAr = lang.value === 'ar';
+      document.documentElement.lang = isAr ? 'ar' : 'en';
+      document.documentElement.dir  = isAr ? 'rtl' : 'ltr';
+      text.placeholder = isAr ? "صف أعراضك هنا…" : "Describe your symptoms…";
+      btn.textContent  = isAr ? "إرسال" : "Send";
+    }
+    setDir();
+    lang.addEventListener('change', setDir);
+
+    const typingHTML = '<span class="typing"><span></span><span></span><span></span></span>';
+
+    function addBubble(role, html){
       const div = document.createElement('div');
       div.className = `bubble ${role==='user'?'user':''}`;
-      div.textContent = text;
-      chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+      div.innerHTML = html;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      trimHistory();
+      return div;
+    }
+
+    function trimHistory(max=30){
+      const nodes = [...chat.querySelectorAll('.bubble')];
+      if(nodes.length>max){
+        const excess = nodes.length - max;
+        for(let i=0;i<excess;i++) nodes[i].remove();
+      }
     }
 
     async function send(){
-      const text = textEl.value.trim();
-      if(!text) return; add('user', text); textEl.value=''; btn.disabled=true;
-      add('ai', '…');
+      const value = text.value.trim();
+      if(!value) return;
+      const isAr = lang.value==='ar';
+      addBubble('user', escapeHtml(value));
+      text.value=''; btn.disabled=true;
+      const typing = addBubble('ai', typingHTML);
       try{
-        const res = await fetch('/api/v1/assess', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({symptoms_text:text, language:langEl.value})});
+        const res = await fetch('/api/v1/assess',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({symptoms_text:value, language:lang.value})
+        });
         const data = await res.json();
-        chat.lastChild.remove();
-        add('ai', `${data.instructions}
+        typing.remove();
 
-→ ${data.recommendation==='ED'?'Go to Emergency Department':'Book outpatient appointment'}
-🔗 ${data.next_step_url}`);
+        const inst = data?.instructions ? `<p>${escapeHtml(data.instructions)}</p>` : '';
+        const rec  = data?.recommendation || '';
+        const sev  = data?.severity || '';
+        const spec = data?.specialty || '';
+        const flags = Array.isArray(data?.red_flags)?data.red_flags:[];
+        
+        // Contextual link logic
+        let link = "";
+        if (rec === "ED") {
+          link = `<a href="/static/ed-directions.html" target="_blank" rel="noopener" style="color:#fde047;text-decoration:underline;">View ED directions ↗</a>`;
+        } else if (rec === "Outpatient") {
+          link = `<a href="/static/booking.html" target="_blank" rel="noopener" style="color:#fde047;text-decoration:underline;">Book an appointment ↗</a>`;
+        } else if (rec) {
+          link = `<a href="https://www.nhs.uk/live-well/" target="_blank" rel="noopener" style="color:#fde047;text-decoration:underline;">Self-care advice ↗</a>`;
+        }
+
+        const badgeColor = rec==='ED'?'var(--warn)':(rec==='Outpatient'?'var(--accent2)':'var(--ok)');
+        const badgeText  = rec==='ED'?(isAr?'الطوارئ':'Emergency Dept.'):
+                           rec==='Outpatient'?(isAr?'العيادات الخارجية':'Outpatient'):
+                           (isAr?'العناية الذاتية':'Self-Care');
+
+        const flagsHtml = flags.length?`<ul>${flags.map(f=>`<li>${escapeHtml(f)}</li>`).join('')}</ul>`:'';
+
+        const html = `
+          ${inst}
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0">
+            ${rec?`<span class="tag" style="border:0;background:${badgeColor};color:#111;font-weight:700">${badgeText}</span>`:''}
+            ${sev?`<span class="tag">${escapeHtml(sev)}</span>`:''}
+            ${spec?`<span class="tag">${escapeHtml(spec)}</span>`:''}
+          </div>
+          ${flagsHtml}
+          ${link?`<div style="margin-top:8px">${link}</div>`:''}
+        `;
+        addBubble('ai', html);
       }catch(e){
-        chat.lastChild.remove();
-        add('ai', 'Sorry — something went wrong.');
-      } finally { btn.disabled=false; }
+        typing.remove();
+        addBubble('ai', lang.value==='ar'?"عذراً — حدث خطأ غير متوقع.":"Sorry — something went wrong.");
+      }finally{
+        btn.disabled=false;
+        text.focus();
+      }
     }
 
-    textEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.shiftKey) send(); });
-  </script>
-</body>
-</html>
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RightCare Triage</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#0b1220; color:#e6e7eb; margin:0; }
-    .container { max-width: 760px; margin: 0 auto; padding: 24px; }
-    .card { background:#121a2b; border:1px solid #223; border-radius:16px; padding:16px; }
-    .row { display:flex; gap:8px; }
-    input, button, select { border-radius:12px; border:1px solid #334; padding:12px; background:#0e1626; color:#e6e7eb; }
-    button { cursor:pointer; }
-    .bubble { background:#19253d; padding:12px 14px; border-radius:14px; margin:8px 0; }
-    .bubble.user { background:#243457; margin-inline-start:auto; }
-    .small { opacity:.75; font-size:.9rem; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>RightCare — مساعد الفرز الطبي</h1>
-    <div class="card">
-      <div id="chat"></div>
-      <div class="row" style="margin-top:12px;">
-        <input id="text" placeholder="صف أعراضك هنا..." style="flex:1" />
-        <select id="lang">
-          <option value="ar">العربية</option>
-          <option value="en">English</option>
-        </select>
-        <button onclick="send()">إرسال</button>
-      </div>
-      <p class="small">⚠️ هذا نموذج تجريبي ولا يغني عن الرعاية الطبية الطارئة.</p>
-    </div>
-  </div>
-  <script>
-    function add(role, text){
-      const div = document.createElement('div');
-      div.className = `bubble ${role==='user'?'user':''}`;
-      div.textContent = text;
-      chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
-    }
-    async function send(){
-      const text = document.getElementById('text').value.trim();
-      const lang = document.getElementById('lang').value;
-      if(!text) return; add('user', text); document.getElementById('text').value='';
-      add('ai', '...');
-      const res = await fetch('/api/v1/assess', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({symptoms_text:text, language:lang})});
-      const data = await res.json();
-      chat.lastChild.remove();
-      add('ai', `${data.instructions}\n\n↪️ ${data.recommendation==='ED'?'الذهاب للطوارئ':'حجز موعد'}\n🔗 ${data.next_step_url}`);
+    text.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+    });
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     }
   </script>
 </body>
