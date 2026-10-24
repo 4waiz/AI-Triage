@@ -1,0 +1,11 @@
+# Keep secrets, local environments and caches out of the image build context.
+# Pass configuration at runtime instead: docker run --env-file .env ...
+.env
+.env.*
+.venv
+venv
+env
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.git
