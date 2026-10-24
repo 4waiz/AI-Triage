@@ -98,7 +98,7 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the project root (see [Configuration](#configuration)), then start the server:
+Copy `.env.example` to `.env` in the project root and fill in your values (see [Configuration](#configuration)), then start the server:
 
 ```bash
 uvicorn app.main:app --reload --port 8000
@@ -122,7 +122,7 @@ pip install pytest
 pytest
 ```
 
-Note: line 14 of `tests/test_endpoints.py` is a stray line (`Tests: tests/test_validator.py`) that raises a `NameError` at import time. Remove it before running the suite. The endpoint test accepts a `500` status when no API key is configured.
+The endpoint test accepts a `500` status when no API key is configured.
 
 ## Configuration
 
@@ -143,7 +143,7 @@ APP_BASE_URL=http://localhost:8000
 SCHEDULING_URL=https://mychart.example.com/schedule
 ```
 
-Use your own keys and keep `.env` out of version control. The repository has no `.gitignore` yet, so add one that excludes `.env`, `.venv/`, and `__pycache__/`.
+Use your own keys. `.env` is excluded by `.gitignore` (together with `.venv/` and `__pycache__/`) and by `.dockerignore`, so it stays out of version control and out of Docker images. Pass it to containers at runtime with `--env-file .env`.
 
 ## Project Structure
 
@@ -162,6 +162,7 @@ AI-Triage/
 │   ├── prompts/                    # placeholder for a grounded ReAct prompt
 │   └── web/                        # index.html (chat), ed-directions.html, booking.html, logo.png
 ├── tests/                          # pytest tests for the endpoint and validator
+├── .env.example                    # configuration template (copy to .env, never commit it)
 ├── Dockerfile
 ├── run.sh
 └── requirements.txt

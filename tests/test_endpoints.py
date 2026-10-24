@@ -11,9 +11,3 @@ def test_assess_basic():
         j = resp.json()
         assert j["recommendation"] in ("ED", "Outpatient")
         assert "next_step_url" in j
-Tests: tests/test_validator.py
-from app.safety.validator import validate_safe_text
-
-def test_validator_blocks():
-    blocked = validate_safe_text("This mentions suicide")
-    assert "emergency" in blocked.lower()
